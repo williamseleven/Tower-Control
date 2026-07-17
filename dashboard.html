@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Torre de Despacho — 06/07 al 17/07/2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<style>
+:root{
+  --bg:#0B111C;
+  --panel:#121A29;
+  --panel-2:#161F32;
+  --border:#242E45;
+  --amber:#FFB020;
+  --teal:#2DD9C4;
+  --text:#EAF0FA;
+  --muted:#8593AD;
+  --danger:#FF5D5D;
+  --c-meli:#FFC53D;
+  --c-moova:#2DD4BF;
+  --c-ocasa:#FB7185;
+  --c-andreani:#60A5FA;
+  --c-fasttrack:#FB923C;
+  --c-inner:#A78BFA;
+  --c-cabify:#F472B6;
+  --c-pickit:#4ADE80;
+  --c-hop:#22D3EE;
+  --c-elogistica:#94A3B8;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+body{padding:28px 32px 60px;background:
+  radial-gradient(circle at 15% 0%, rgba(45,217,196,0.07), transparent 40%),
+  radial-gradient(circle at 90% 10%, rgba(255,176,32,0.06), transparent 45%),
+  var(--bg);
+}
+.wrap{max-width:1360px;margin:0 auto;}
+
+/* ---------- Header ---------- */
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:28px;border-bottom:1px solid var(--border);padding-bottom:20px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);font-size:11px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);animation:pulse 1.8s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+h1{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;margin:0;letter-spacing:-.01em;}
+.subtitle{color:var(--muted);font-size:13.5px;margin-top:6px;max-width:520px;line-height:1.5;}
+.headright{text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--muted);font-size:12px;}
+.headright .big{color:var(--text);font-size:15px;font-weight:600;}
+
+/* ---------- KPI split-flap row ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.kpi{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kcolor,var(--amber));}
+.kpi-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.flap-row{display:flex;gap:3px;}
+.flap{background:#050810;border:1px solid #232d44;border-radius:4px;width:30px;height:42px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--text);box-shadow:inset 0 -2px 4px rgba(0,0,0,.5);position:relative;}
+.flap::after{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.55);}
+.kpi-sub{margin-top:10px;font-size:11.5px;color:var(--muted);}
+.kpi-sub b{color:var(--text);}
+
+/* ---------- Panels / charts ---------- */
+.grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px;}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px 22px;}
+.panel h2{font-family:'Space Grotesk',sans-serif;font-size:15px;margin:0 0 2px;font-weight:600;}
+.panel .desc{color:var(--muted);font-size:12px;margin-bottom:16px;}
+.chart-box{position:relative;}
+
+/* courier bars (custom, not chart.js, for click-filter + label control) */
+.cbar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer;}
+.cbar-row:hover .cbar-label{color:var(--text);}
+.cbar-dot{width:9px;height:9px;border-radius:2px;flex:none;}
+.cbar-label{width:88px;flex:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);transition:color .15s;}
+.cbar-track{flex:1;background:#0B111C;border-radius:5px;height:16px;overflow:hidden;border:1px solid var(--border);}
+.cbar-fill{height:100%;border-radius:5px 0 0 5px;transition:width .8s cubic-bezier(.2,.8,.2,1);}
+.cbar-val{width:88px;text-align:right;flex:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);}
+.cbar-row.dim{opacity:.35;}
+
+/* ---------- Filters ---------- */
+.filterbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px;}
+.searchbox{flex:1;min-width:220px;background:#0B111C;border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;}
+.searchbox::placeholder{color:#4B5A78;}
+select{background:#0B111C;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-family:'Inter';font-size:13px;}
+.chip{border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:11.5px;font-family:'IBM Plex Mono',monospace;color:var(--muted);cursor:pointer;user-select:none;transition:all .15s;background:#0B111C;}
+.chip.active{color:#081018;border-color:transparent;}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+.clearbtn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;cursor:pointer;font-family:'Inter';}
+.clearbtn:hover{color:var(--text);border-color:var(--muted);}
+.exportbtn{background:linear-gradient(180deg,#1B2438,#141C2C);border:1px solid var(--border);color:var(--teal);border-radius:8px;padding:9px 14px;font-size:12px;cursor:pointer;font-family:'IBM Plex Mono',monospace;display:inline-flex;align-items:center;gap:6px;transition:all .15s;}
+.exportbtn:hover{border-color:var(--teal);color:var(--text);background:linear-gradient(180deg,#1F2E42,#161F32);}
+.export-note{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;min-height:14px;}
+
+/* ---------- Table ---------- */
+.tablewrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--panel);}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{position:sticky;top:0;background:var(--panel-2);text-align:left;padding:12px 14px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+tbody td{padding:10px 14px;border-bottom:1px solid #1A2337;font-family:'IBM Plex Mono',monospace;color:var(--text);}
+tbody tr:hover{background:#161F32;}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:20px;font-size:11px;background:#0B111C;border:1px solid var(--border);}
+.tag .d{width:7px;height:7px;border-radius:50%;}
+.tracking-empty{color:var(--danger);font-style:italic;}
+.pager{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted);}
+.pager button{background:#0B111C;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 12px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+.pager button:disabled{opacity:.3;cursor:not-allowed;}
+
+footer{margin-top:26px;color:var(--muted);font-size:11px;font-family:'IBM Plex Mono',monospace;line-height:1.7;border-top:1px solid var(--border);padding-top:16px;}
+footer b{color:var(--text);}
+
+/* ---------- Alert panel ---------- */
+.alert-head{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;}
+.alert-icon{font-size:22px;color:var(--danger);background:rgba(255,93,93,.12);border:1px solid rgba(255,93,93,.4);width:38px;height:38px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;}
+.abar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.abar-label{width:150px;flex:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);}
+.abar-track{flex:1;background:#0B111C;border-radius:5px;height:14px;overflow:hidden;border:1px solid rgba(255,93,93,.3);}
+.abar-fill{height:100%;background:linear-gradient(90deg,#FF5D5D,#FF8A5D);border-radius:5px 0 0 5px;}
+.abar-val{width:40px;text-align:right;flex:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--danger);font-weight:600;}
+
+.promise-cell{display:inline-flex;align-items:center;gap:6px;}
+.promise-alert{color:var(--danger);font-weight:600;}
+.promise-alert .pill{background:rgba(255,93,93,.15);border:1px solid rgba(255,93,93,.5);color:var(--danger);font-size:9.5px;padding:1px 6px;border-radius:10px;font-family:'IBM Plex Mono',monospace;letter-spacing:.03em;}
+tr.row-alert{background:rgba(255,93,93,.06);}
+tr.row-alert:hover{background:rgba(255,93,93,.12);}
+.alert-toggle{display:flex;align-items:center;gap:8px;border:1px solid rgba(255,93,93,.45);background:rgba(255,93,93,.08);color:var(--danger);border-radius:8px;padding:9px 14px;font-size:12px;cursor:pointer;font-family:'IBM Plex Mono',monospace;user-select:none;}
+.alert-toggle.active{background:var(--danger);color:#fff;}
+
+@media(max-width:900px){
+  .grid2,.grid2b{grid-template-columns:1fr;}
+  .kpis{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow"><span class="dot"></span>OPERACIONES · MULTI-BRAND FULFILLMENT</div>
+      <h1>Torre de Despacho</h1>
+      <div class="subtitle">Compras generadas entre el lunes 06/07 y el viernes 17/07/2026, distribuidas por courier, servicio y marca. Excluye envíos Meli (me2, fulfillment propio de Mercado Libre) — se mantienen los MeliFlex. Datos derivados de ops-om-ar.</div>
+    </div>
+    <div class="headright">
+      Corte al <span class="big" id="cutoffTime">17/07/2026 09:43</span><br>
+      Periodo <span style="color:var(--text)">06/07 → 17/07</span><br>
+      <span id="headMeta">11 marcas · 10 couriers activos</span>
+    </div>
+  </header>
+
+  <div class="kpis" id="kpiRow"></div>
+
+  <div class="panel" id="alertPanel" style="margin-bottom:16px;display:none;">
+    <div class="alert-head">
+      <div class="alert-icon">⚠</div>
+      <div>
+        <h2 style="color:var(--danger);">Promesas en riesgo</h2>
+        <div class="desc" style="margin-bottom:0;">Órdenes cuya fecha de promesa cae sábado, domingo o el <b>9/7 (feriado — Día de la Independencia)</b>. Revisar capacidad de courier antes de esas fechas.</div>
+      </div>
+    </div>
+    <div id="alertBars"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Volumen por courier</h2>
+      <div class="desc">Click en un courier para filtrar la tabla inferior</div>
+      <div id="courierBars"></div>
+    </div>
+    <div class="panel">
+      <h2>Participación por marca</h2>
+      <div class="desc">Distribución de compras por brand</div>
+      <div class="chart-box" style="height:280px;"><canvas id="brandDonut"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:16px;">
+    <h2>Detalle de órdenes</h2>
+    <div class="desc">Buscá por Order ID, Order Ext ID o tracking. Filtrá por marca o servicio.</div>
+    <div class="filterbar">
+      <input type="text" class="searchbox" id="searchInput" placeholder="Buscar por Order ID, Ext ID o tracking…">
+      <select id="brandFilter"><option value="">Todas las marcas</option></select>
+      <select id="dayFilter"><option value="">Toda la semana</option></select>
+      <select id="promiseFilter"><option value="">Todas las promesas</option></select>
+      <select id="statusFilter"><option value="">Todos los estados</option></select>
+      <select id="serviceFilter"><option value="">Todos los servicios</option></select>
+      <div class="alert-toggle" id="alertToggle">⚠ Solo promesas en riesgo</div>
+      <button class="clearbtn" id="clearBtn">Limpiar filtros</button>
+      <button class="exportbtn" id="exportCsv">⬇ Exportar CSV</button>
+      <button class="exportbtn" id="exportXlsx">⬇ Exportar XLSX</button>
+    </div>
+    <div class="chip-row" id="courierChips" style="margin-bottom:16px;"></div>
+    <div class="export-note" id="exportNote"></div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:36px;text-align:right;">#</th><th>Order ID</th><th>Order Ext ID</th><th>Marca</th><th>Estado</th><th>Courier</th><th>Servicio</th><th>Fecha</th><th>Hora compra</th><th>Promesa</th><th>Tracking</th><th>Estado envío</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="pager">
+        <span id="pagerInfo"></span>
+        <div>
+          <button id="prevPage">← Anterior</button>
+          <button id="nextPage">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <b>Metodología:</b> Courier y servicio derivados de <i>ship_shipping-method</i>, con reglas especiales para MeliFlex (courier real tomado de <i>ship_carier2</i>, y si está vacío, de <i>ship_carrier1</i>) y HOP_PickUpPoints (courier HOP, servicio Punto de retiro). Los registros marcados como "inferido por patrón" no tenían mapeo explícito y se asignaron por analogía a métodos similares — recomendable validarlos.
+  </footer>
+
+</div>
+
+<script id="raw-data" type="text/plain">__DATA__</script>
+<script>__JS__</script>
+</body>
+</html>
