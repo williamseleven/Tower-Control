@@ -4,7 +4,7 @@ on:
   schedule:
     # Cada 20 minutos. Nota: el scheduler de GitHub no es exacto,
     # en horas pico puede demorar. Los horarios son en UTC.
-    - cron: "*/20 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:   # permite ejecutarlo manualmente desde la pestaña Actions
 
 # Permisos necesarios para publicar en GitHub Pages
