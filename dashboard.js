@@ -58,6 +58,25 @@ const courierColor = c => COURIER_COLORS[c] || '#8593AD';
 const STATUS_COLORS = { 'paid':'#4ADE80', 'shipped':'#60A5FA', 'cancelled':'#FF5D5D', 'delivered':'#2DD4BF' };
 const statusColor = s => STATUS_COLORS[s] || '#8593AD';
 
+// ---------- Envios PRIORITARIOS ----------
+// Prioritario = SameDay (todas sus variantes) + Meliflex.
+// Se listan explicitamente porque varios servicios NO llevan "sameday" en el nombre
+// (CabifyWK, MOOVA-WK, PickitHomeSD). Origen: shipping_method ->
+//   Cabify_Home_SameDay / _PM / _WK, Moova_Home_SameDay / _AM / _PM / _WK, Pickit_Home_SameDay
+const SAMEDAY_SERVICES = new Set([
+  'Cabify Same Day',
+  'Cabify Same Day PM',
+  'CabifyWK',
+  'MOOVA-SAMEDAY',
+  'MOOVA-SAMEDAY-AM',
+  'MOOVA-SAMEDAY-PM',
+  'MOOVA-WK',
+  'PickitHomeSD',
+]);
+const isSameDay  = s => SAMEDAY_SERVICES.has(String(s||'').trim());
+const isMeliflex = s => /^meliflex$/i.test(String(s||'').trim());
+const isPriority = s => isSameDay(s) || isMeliflex(s);
+
 // ---------- KPI split-flap ----------
 function flapDigits(container, numStr, color){
   container.innerHTML = '';
@@ -153,11 +172,7 @@ function renderCourierBars(){
       <div class="cbar-val">${count}</div>
     `;
     row.addEventListener('click', () => {
-      activeCourier = activeCourier === courier ? null : courier;
-      renderCourierBars();
-      renderChips();
-      currentPage = 1;
-      renderTable();
+      setCourier(activeCourier === courier ? null : courier);
     });
     box.appendChild(row);
   });
@@ -220,14 +235,79 @@ function populateSelectOptions(){
     o.textContent = `${flag}${p} (${WD_FULL[rec.promise_wd]||rec.promise_wd}) — ${promiseCounts[p]} pedidos`;
     promiseSel.appendChild(o);
   });
-  const svcSel = document.getElementById('serviceFilter');
-  [...new Set(DATA.map(d=>d.servicio))].sort().forEach(s => {
-    const o = document.createElement('option'); o.value=s; o.textContent=s; svcSel.appendChild(o);
+  const courierSel = document.getElementById('courierFilter');
+  const courierCounts = DATA.reduce((acc,d)=>{acc[d.courier]=(acc[d.courier]||0)+1;return acc;},{});
+  Object.entries(courierCounts).sort((a,b)=>b[1]-a[1]).forEach(([c,n]) => {
+    const o = document.createElement('option');
+    o.value = c;
+    o.textContent = `${c} — ${n} pedidos`;
+    courierSel.appendChild(o);
+  });
+  refreshServiceOptions();
+  const prioSel = document.getElementById('priorityFilter');
+  const nSD   = DATA.filter(d=>isSameDay(d.servicio)).length;
+  const nFlex = DATA.filter(d=>isMeliflex(d.servicio)).length;
+  const nPrio = nSD + nFlex;
+  [
+    ['prio',      `⚡ Solo PRIORITARIOS — ${nPrio}`],
+    ['prio:sd',   `\u00A0\u00A0\u00A0↳ SameDay — ${nSD}`],
+    ['prio:flex', `\u00A0\u00A0\u00A0↳ Meliflex — ${nFlex}`],
+    ['noprio',    `No prioritarios — ${DATA.length - nPrio}`],
+  ].forEach(([v,t]) => {
+    const o = document.createElement('option'); o.value=v; o.textContent=t; prioSel.appendChild(o);
   });
   const statusSel = document.getElementById('statusFilter');
   [...new Set(DATA.map(d=>d.ostatus))].sort().forEach(s => {
     const o = document.createElement('option'); o.value=s; o.textContent=s; statusSel.appendChild(o);
   });
+}
+
+// Repuebla el desplegable de servicios mostrando SOLO los del courier elegido.
+// Si no hay courier seleccionado, muestra todos agrupados por courier.
+function refreshServiceOptions(){
+  const svcSel = document.getElementById('serviceFilter');
+  const prev = svcSel.value;
+  svcSel.innerHTML = '<option value="">Todos los servicios</option>';
+
+  if(activeCourier){
+    const counts = DATA.filter(d=>d.courier===activeCourier)
+      .reduce((acc,d)=>{acc[d.servicio]=(acc[d.servicio]||0)+1;return acc;},{});
+    Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([s,n]) => {
+      const o = document.createElement('option');
+      o.value = s; o.textContent = `${s} — ${n}`;
+      svcSel.appendChild(o);
+    });
+  } else {
+    // agrupado por courier para que se entienda a quien pertenece cada servicio
+    const byCourier = {};
+    DATA.forEach(d => {
+      (byCourier[d.courier] = byCourier[d.courier] || {});
+      byCourier[d.courier][d.servicio] = (byCourier[d.courier][d.servicio]||0)+1;
+    });
+    Object.keys(byCourier).sort().forEach(c => {
+      const grp = document.createElement('optgroup');
+      grp.label = c;
+      Object.entries(byCourier[c]).sort((a,b)=>b[1]-a[1]).forEach(([s,n]) => {
+        const o = document.createElement('option');
+        o.value = s; o.textContent = `${s} — ${n}`;
+        grp.appendChild(o);
+      });
+      svcSel.appendChild(grp);
+    });
+  }
+  // conservar la seleccion previa si sigue siendo valida
+  if(prev && [...svcSel.options].some(o=>o.value===prev)) svcSel.value = prev;
+}
+
+// Mantiene sincronizados: desplegable de courier, chips y barras
+function setCourier(c){
+  activeCourier = c || null;
+  document.getElementById('courierFilter').value = activeCourier || '';
+  refreshServiceOptions();
+  renderChips();
+  renderCourierBars();
+  currentPage = 1;
+  renderTable();
 }
 
 function renderChips(){
@@ -240,8 +320,7 @@ function renderChips(){
     chip.textContent = c;
     if(activeCourier===c){ chip.style.background = courierColor(c); chip.style.borderColor = courierColor(c); chip.style.color='#081018'; }
     chip.addEventListener('click', () => {
-      activeCourier = activeCourier === c ? null : c;
-      renderChips(); renderCourierBars(); currentPage=1; renderTable();
+      setCourier(activeCourier === c ? null : c);
     });
     wrap.appendChild(chip);
   });
@@ -254,7 +333,12 @@ function getFiltered(){
   const status = document.getElementById('statusFilter').value;
   const day = document.getElementById('dayFilter').value;
   const promise = document.getElementById('promiseFilter').value;
+  const prio = document.getElementById('priorityFilter').value;
   return DATA.filter(d => {
+    if(prio === 'prio'      && !isPriority(d.servicio)) return false;
+    if(prio === 'prio:sd'   && !isSameDay(d.servicio))  return false;
+    if(prio === 'prio:flex' && !isMeliflex(d.servicio)) return false;
+    if(prio === 'noprio'    &&  isPriority(d.servicio)) return false;
     if(activeCourier && d.courier !== activeCourier) return false;
     if(brand && d.brand !== brand) return false;
     if(service && d.servicio !== service) return false;
@@ -286,7 +370,7 @@ function renderTable(){
       <td>${d.brand}</td>
       <td><span class="tag"><span class="d" style="background:${statusColor(d.ostatus)}"></span>${d.ostatus||'—'}</span></td>
       <td><span class="tag"><span class="d" style="background:${courierColor(d.courier)}"></span>${d.courier}</span></td>
-      <td>${d.servicio}</td>
+      <td>${isPriority(d.servicio) ? `<span class="prio-badge">⚡</span> ` : ''}${d.servicio}</td>
       <td>${d.fecha_compra} (${d.dia_wd})</td>
       <td>${d.hora}</td>
       <td>${d.promise_alert
@@ -304,6 +388,10 @@ function renderTable(){
 }
 
 document.getElementById('searchInput').addEventListener('input', () => { currentPage=1; renderTable(); });
+document.getElementById('courierFilter').addEventListener('change', (e) => {
+  setCourier(e.target.value || null);
+});
+document.getElementById('priorityFilter').addEventListener('change', () => { currentPage=1; renderTable(); });
 document.getElementById('brandFilter').addEventListener('change', () => { currentPage=1; renderTable(); });
 document.getElementById('dayFilter').addEventListener('change', () => { currentPage=1; renderTable(); });
 document.getElementById('promiseFilter').addEventListener('change', () => { currentPage=1; renderTable(); });
@@ -324,11 +412,10 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   document.getElementById('promiseFilter').value='';
   document.getElementById('statusFilter').value='';
   document.getElementById('serviceFilter').value='';
-  activeCourier = null;
+  document.getElementById('priorityFilter').value='';
   alertOnly = false;
   document.getElementById('alertToggle').classList.remove('active');
-  currentPage = 1;
-  renderChips(); renderCourierBars(); renderTable();
+  setCourier(null);
 });
 
 // ---------- Export ----------
@@ -339,6 +426,7 @@ const EXPORT_COLUMNS = [
   {key:'ostatus', label:'Estado'},
   {key:'courier', label:'Courier'},
   {key:'servicio', label:'Servicio'},
+  {key:'prioritario', label:'Prioritario'},
   {key:'fecha', label:'Fecha compra'},
   {key:'hora', label:'Hora compra'},
   {key:'promise_label', label:'Promesa'},
@@ -356,6 +444,7 @@ function buildExportRows(){
     ostatus: d.ostatus,
     courier: d.courier,
     servicio: d.servicio,
+    prioritario: isPriority(d.servicio) ? 'SI' : 'NO',
     fecha: `${d.fecha_compra} (${d.dia_wd})`,
     hora: d.hora,
     promise_label: d.promise_str ? `${d.promise_str} (${d.promise_wd})` : '',

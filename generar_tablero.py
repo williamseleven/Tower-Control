@@ -148,7 +148,7 @@ Pickit_PickUpPoints\tPICKIT
 amstrates24\tMOOVA-SAMEDAY
 Moova_Home_SameDay_WK\tMOOVA-WK
 Moova_Reverse_Home\tMOOVA
-Moova_Home_SameDay_AM\tMOOVA-SAMEDAY
+Moova_Home_SameDay_AM\tMOOVA-SAMEDAY-AM
 Cabify_Home_SameDay\tCabify Same Day
 Cabify_Home_SameDay_PM\tCabify Same Day PM
 Cabify_Home_SameDay_WK\tCabifyWK
@@ -179,6 +179,19 @@ def resolve_service(method):
     return 'SIN MAPEO: ' + method
 
 df['servicio'] = df['ship_shipping-method'].apply(resolve_service)
+
+# ---------- Referencia: envios PRIORITARIOS ----------
+# El filtro de prioritarios del tablero (dashboard.js -> SAMEDAY_SERVICES) agrupa
+# estos shipping_method. Si se agrega un SameDay nuevo, sumar su servicio alla tambien.
+#   Cabify_Home_SameDay      -> Cabify Same Day
+#   Cabify_Home_SameDay_PM   -> Cabify Same Day PM
+#   Cabify_Home_SameDay_WK   -> CabifyWK
+#   Moova_Home_SameDay       -> MOOVA-SAMEDAY
+#   Moova_Home_SameDay_AM    -> MOOVA-SAMEDAY-AM
+#   Moova_Home_SameDay_PM    -> MOOVA-SAMEDAY-PM
+#   Moova_Home_SameDay_WK    -> MOOVA-WK
+#   Pickit_Home_SameDay      -> PickitHomeSD
+#   me2_flex_bsas / me2_flex_caba -> Meliflex
 
 # ---------- Excluir Meli (me2) para aligerar ----------
 rows_before_meli = len(df)
