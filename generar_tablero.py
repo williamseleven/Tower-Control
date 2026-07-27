@@ -172,7 +172,7 @@ def resolve_service(method):
     if method.startswith('Ocasa_Spu_Mall:') or method.startswith('OCASA_Spu_Mall:'): return 'OCASA-SPU'
     if method.startswith('spu_ocasa'): return 'ANDREANI V2-SPU'
     if method.startswith('Moova_Spu_Mall:'): return 'MOOVA-SPU'
-    if method.startswith('Moova_Spu_Calle:'): return 'OCASA-SPU'
+    if method.startswith('Moova_Spu_Calle:'): return 'MOOVA-SPU'
     if method.startswith('spu_estandar:'): return 'ELOGISTICA SPU'
     if method.startswith('Inner_Spu_Mall:') or method.startswith('Inner_Spu_Calle:'): return 'INNER-SPU'
     if 'reverse' in method.lower(): return 'REVERSA (a confirmar)'
@@ -197,6 +197,11 @@ df['servicio'] = df['ship_shipping-method'].apply(resolve_service)
 rows_before_meli = len(df)
 df = df[df['courier'] != 'Meli'].copy()
 print(f'Ordenes Meli (me2) excluidas: {rows_before_meli - len(df)}')
+
+# ---------- Excluir marca Topper del analisis ----------
+rows_before_topper = len(df)
+df = df[df['brand_name'].astype(str).str.strip().str.lower() != 'topper'].copy()
+print(f'Ordenes Topper excluidas: {rows_before_topper - len(df)}')
 
 # ---------- Delivery promise ----------
 tz_ba = pytz.timezone('America/Argentina/Buenos_Aires')
@@ -276,8 +281,8 @@ titulo = f'Torre de Despacho — {fmt_ddmm(WEEK_START)} al {WEEK_END.strftime("%
 subtitulo = (f'Compras generadas en los últimos {DAYS_WINDOW} días '
              f'({WEEK_START.strftime("%d/%m")} al {WEEK_END.strftime("%d/%m/%Y")}), '
              f'distribuidas por courier, servicio y marca. Excluye envíos Meli '
-             f'(me2, fulfillment propio de Mercado Libre) — se mantienen los MeliFlex. '
-             f'Actualización automática cada 20 min. Datos derivados de ops-om-ar.')
+             f'(me2, fulfillment propio de Mercado Libre) y la marca Topper — se mantienen los MeliFlex. '
+             f'Actualización automática cada 5 min. Datos derivados de ops-om-ar.')
 
 html = open(TEMPLATE_HTML, encoding='utf-8').read()
 js = open(TEMPLATE_JS, encoding='utf-8').read()
