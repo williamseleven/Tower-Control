@@ -69,6 +69,7 @@ Cabify_Home_SameDay_PM\tCabify
 spu_estandar:R062\tMeli
 amstrates16\tOcasa
 Moova_Home_SameDay_AM\tMoova
+Moova_Home_SameDay_Sa\tMoova
 amstrates17\tamstrates17
 OCASA_Reverse_Store\tOcasa
 OCASA_Home_Regular_Misiones\tOcasa
@@ -149,6 +150,7 @@ amstrates24\tMOOVA-SAMEDAY
 Moova_Home_SameDay_WK\tMOOVA-WK
 Moova_Reverse_Home\tMOOVA
 Moova_Home_SameDay_AM\tMOOVA-SAMEDAY-AM
+Moova_Home_SameDay_Sa\tSameDay_Sa
 Cabify_Home_SameDay\tCabify Same Day
 Cabify_Home_SameDay_PM\tCabify Same Day PM
 Cabify_Home_SameDay_WK\tCabifyWK
@@ -233,6 +235,7 @@ servicio_dict, servicio_idx = build_dict(df['servicio'])
 sstatus_dict, sstatus_idx = build_dict(df['ship_status'])
 day_dict, day_idx = build_dict(df['dia_compra'])
 promise_dict, promise_idx = build_dict(df['promise_str'])
+method_dict, method_idx = build_dict(df['ship_shipping-method'])  # crudo, para el pivot de Qwery
 
 rows = []
 for i in range(len(df)):
@@ -245,12 +248,13 @@ for i in range(len(df)):
         df['hora'].iloc[i],
         day_idx[i],
         promise_idx[i],
+        method_idx[i],
     ])
 
 payload = {
     'dicts': {
         'brand': brand_dict, 'ostatus': ostatus_dict, 'courier': courier_dict,
-        'servicio': servicio_dict, 'sstatus': sstatus_dict,
+        'servicio': servicio_dict, 'sstatus': sstatus_dict, 'method': method_dict,
     },
     'days': day_dict,
     'promises': promise_dict,
@@ -285,7 +289,6 @@ subtitulo = (f'Compras generadas en los últimos {DAYS_WINDOW} días '
              f'Actualización automática cada 5 min. Datos derivados de ops-om-ar.')
 
 html = open(TEMPLATE_HTML, encoding='utf-8').read()
-js = open(TEMPLATE_JS, encoding='utf-8').read()
 
 # Reemplazos de header (robustos: por regex sobre los elementos con id/estructura conocida)
 import re
@@ -296,7 +299,7 @@ html = re.sub(r'(<span class="big" id="cutoffTime">).*?(</span>)', lambda m: m.g
 html = re.sub(r'((?:Periodo|Semana)\s*<span style="color:var\(--text\)">).*?(</span>)',
               lambda m: m.group(1)+periodo_txt+m.group(2), html, flags=re.S)
 
-html = html.replace('__DATA__', b64).replace('__JS__', js)
+html = html.replace('__DATA__', b64)
 
 with open(OUT_HTML, 'w', encoding='utf-8') as f:
     f.write(html)
