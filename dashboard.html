@@ -22,6 +22,7 @@
 /* Torre vive con fondo oscuro; Qwery con su propio fondo claro */
 #view-qwery{background:#F4F4F6;min-height:calc(100vh - 63px);}
 
+
 /* ============ ESTILOS TORRE ============ */
 
 :root{
@@ -147,9 +148,9 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
 }
 
 
-/* ============ ESTILOS QWERY (scoped a #view-qwery) ============ */
-#view-qwery /* ---------- (4) UI / ESTILOS ---------- */
-  :root{
+
+/* ============ ESTILOS QWERY (scoped) ============ */
+/* ---------- (4) UI / ESTILOS ---------- */ #view-qwery #view-qwery{
     /* Paleta de marca Infracommerce (imagen de referencia + fallback oficial) */
     --plum:#3F3354;        /* violeta oscuro / títulos */
     --violet:#7A6CFF;      /* violeta primario */
@@ -168,22 +169,22 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
     --plum-tint:#EEEBF5;   /* fondo fila de courier */
     --plum-tint-2:#E4E0F1;
     --shadow-1:0 1px 2px rgba(24,22,51,.06),0 1px 3px rgba(24,22,51,.05);
-    --shadow-2:0 4px 16px rgba(24,22,51,.10);}
-#view-qwery *{box-sizing:border-box}
-#view-qwery html, #view-qwery body{margin:0;padding:0}
-#view-qwery body{
+    --shadow-2:0 4px 16px rgba(24,22,51,.10);
+  }
+#view-qwery{box-sizing:border-box}
+#view-qwery, #view-qwery{margin:0;padding:0}
+#view-qwery{
     font-family:'Inter',system-ui,sans-serif;
     color:var(--text);
     background:var(--bg);
     -webkit-font-smoothing:antialiased;
-    font-size:14px;}
+    font-size:14px;
+  }
 #view-qwery a{color:var(--violet);text-decoration:none}
 #view-qwery a:hover{color:var(--violet-dark);text-decoration:underline}
-#view-qwery /* Barra arcoíris de marca */
-  .rainbow{height:4px;width:100%;
+/* Barra arcoíris de marca */ #view-qwery .rainbow{height:4px;width:100%;
     background:linear-gradient(90deg,var(--violet) 0%,var(--pink) 30%,var(--orange) 55%,var(--green) 78%,var(--cyan) 100%);}
-#view-qwery /* ---------- Header ---------- */
-  header.app{background:var(--white);border-bottom:1px solid var(--border);}
+/* ---------- Header ---------- */ #view-qwery header.app{background:var(--white);border-bottom:1px solid var(--border);}
 #view-qwery .header-inner{max-width:1560px;margin:0 auto;padding:16px 28px;
     display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
 #view-qwery .brand-logo svg{height:30px;width:auto;display:block}
@@ -192,8 +193,7 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
 #view-qwery .title-block h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:22px;
     color:var(--plum);margin:0;letter-spacing:-.01em;line-height:1.1}
 #view-qwery .title-block p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
-#view-qwery /* ---------- Toolbar ---------- */
-  .toolbar{max-width:1560px;margin:0 auto;padding:20px 28px 8px;
+/* ---------- Toolbar ---------- */ #view-qwery .toolbar{max-width:1560px;margin:0 auto;padding:20px 28px 8px;
     display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;}
 #view-qwery .update-group{display:flex;flex-direction:column;gap:8px;min-width:240px}
 #view-qwery .btn-update{
@@ -201,13 +201,14 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
     background:var(--violet);color:#fff;border:none;border-radius:8px;
     padding:12px 22px;cursor:pointer;display:inline-flex;align-items:center;gap:10px;white-space:nowrap;
     transition:background .18s cubic-bezier(.645,.045,.355,1),box-shadow .18s;
-    box-shadow:var(--shadow-1);width:fit-content;}
+    box-shadow:var(--shadow-1);width:fit-content;
+  }
 #view-qwery .btn-update:hover{background:var(--violet-dark)}
 #view-qwery .btn-update:active{transform:translateY(1px)}
 #view-qwery .btn-update:disabled{background:#b7b0ea;cursor:not-allowed;box-shadow:none}
 #view-qwery .spinner{width:15px;height:15px;border:2.5px solid rgba(255,255,255,.45);
     border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
-@keyframes spin{to{transform:rotate(360deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
 #view-qwery .btn-update.loading .spinner{display:inline-block}
 #view-qwery .last-update{font-size:12.5px;color:var(--text)}
 #view-qwery .last-update b{color:var(--plum);font-weight:600}
@@ -215,14 +216,12 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
 #view-qwery .auto-line{font-size:12.5px;color:var(--text);display:flex;align-items:center;gap:7px;cursor:pointer}
 #view-qwery .auto-line input{accent-color:var(--violet);width:15px;height:15px}
 #view-qwery .auto-line #autoNext{color:var(--muted)}
-#view-qwery /* Estado de error */
-  .banner{max-width:1560px;margin:8px auto 0;padding:0 28px}
+/* Estado de error */ #view-qwery .banner{max-width:1560px;margin:8px auto 0;padding:0 28px}
 #view-qwery .banner-error{background:#FFF1F0;border:1px solid #FFCCC7;color:#a8181f;
     border-radius:8px;padding:12px 16px;font-size:13px;line-height:1.5;display:none}
 #view-qwery .banner-error.show{display:block}
 #view-qwery .banner-error b{color:#8c0f16}
-#view-qwery /* Opciones fetch (proxy / archivo local) */
-  .fetch-opts{display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:var(--text)}
+/* Opciones fetch (proxy / archivo local) */ #view-qwery .fetch-opts{display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:var(--text)}
 #view-qwery .fetch-opts label{display:flex;align-items:center;gap:7px;cursor:pointer}
 #view-qwery .fetch-opts select, #view-qwery .fetch-opts input[type=text]{
     font-family:inherit;font-size:12.5px;border:1px solid var(--border);
@@ -230,8 +229,7 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
 #view-qwery .fetch-opts .sub{color:var(--muted);font-size:11.5px;padding-left:23px;margin-top:-3px}
 #view-qwery .file-load{color:var(--violet);cursor:pointer;font-weight:500}
 #view-qwery .file-load:hover{text-decoration:underline}
-#view-qwery /* ---------- Filtros ---------- */
-  .filters{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+/* ---------- Filtros ---------- */ #view-qwery .filters{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
 #view-qwery .ms{position:relative}
 #view-qwery .ms-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
     color:var(--muted);font-weight:600;margin-bottom:5px}
@@ -250,8 +248,7 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
     font-size:13px;cursor:pointer;color:var(--text)}
 #view-qwery .ms-panel label:hover{background:var(--sunken)}
 #view-qwery .ms-panel input[type=checkbox]{accent-color:var(--violet);width:15px;height:15px}
-#view-qwery /* Filtro de fecha */
-  .date-filter{display:flex;flex-direction:column}
+/* Filtro de fecha */ #view-qwery .date-filter{display:flex;flex-direction:column}
 #view-qwery .date-row{display:flex;align-items:center;gap:8px}
 #view-qwery .date-row input[type=date]{font-family:inherit;font-size:13px;border:1px solid var(--border);
     border-radius:6px;padding:8px 10px;color:var(--text);background:#fff}
@@ -259,40 +256,33 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
 #view-qwery .date-row span{color:var(--muted);font-size:12px}
 #view-qwery .date-clear{background:none;border:none;color:var(--violet);cursor:pointer;font-size:12px;font-family:inherit}
 #view-qwery .date-clear:hover{text-decoration:underline}
-#view-qwery /* ---------- Tabla ---------- */
-  .table-wrap{max-width:1560px;margin:18px auto 40px;padding:0 28px}
+/* ---------- Tabla ---------- */ #view-qwery .table-wrap{max-width:1560px;margin:18px auto 40px;padding:0 28px}
 #view-qwery .table-card{background:#fff;border:1px solid var(--border);border-radius:12px;
     box-shadow:var(--shadow-1);overflow:hidden}
 #view-qwery .table-scroll{overflow:auto;max-height:calc(100vh - 300px)}
 #view-qwery table.pivot{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
 #view-qwery table.pivot th, #view-qwery table.pivot td{white-space:nowrap;padding:9px 12px;text-align:right}
-#view-qwery /* Encabezado */
-  table.pivot thead th{position:sticky;top:0;z-index:20;background:var(--plum);color:#fff;
+/* Encabezado */ #view-qwery table.pivot thead th{position:sticky;top:0;z-index:20;background:var(--plum);color:#fff;
     font-family:'Archivo',sans-serif;font-weight:600;font-size:12px;border-bottom:1px solid var(--plum)}
 #view-qwery table.pivot thead th.corner{left:0;z-index:30;text-align:left;min-width:280px}
 #view-qwery table.pivot thead th.col-total{background:var(--ink)}
-#view-qwery /* Primera columna (etiquetas) sticky */
-  table.pivot .lbl{position:sticky;left:0;background:#fff;text-align:left;z-index:10;
+/* Primera columna (etiquetas) sticky */ #view-qwery table.pivot .lbl{position:sticky;left:0;background:#fff;text-align:left;z-index:10;
     min-width:280px;border-right:1px solid var(--border)}
-#view-qwery /* Fila de courier (agrupador) */
-  tr.courier-row{cursor:pointer}
+/* Fila de courier (agrupador) */ #view-qwery tr.courier-row{cursor:pointer}
 #view-qwery tr.courier-row td{background:var(--plum-tint);font-weight:700;color:var(--plum);
     border-top:1px solid var(--plum-tint-2);font-family:'Archivo',sans-serif}
 #view-qwery tr.courier-row td.lbl{background:var(--plum-tint)}
 #view-qwery tr.courier-row:hover td, #view-qwery tr.courier-row:hover td.lbl{background:var(--plum-tint-2)}
 #view-qwery .caret-tog{display:inline-block;width:14px;color:var(--violet);font-size:11px;margin-right:6px}
 #view-qwery .courier-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:9px;vertical-align:middle}
-#view-qwery /* Sub-filas de método */
-  tr.method-row td{color:var(--text);border-top:1px solid var(--sunken)}
+/* Sub-filas de método */ #view-qwery tr.method-row td{color:var(--text);border-top:1px solid var(--sunken)}
 #view-qwery tr.method-row td.lbl{padding-left:42px;color:var(--text);font-family:'Roboto Mono',monospace;font-size:12px}
 #view-qwery tr.method-row:hover td, #view-qwery tr.method-row:hover td.lbl{background:var(--sunken)}
-#view-qwery /* Números */
-  td.num{font-family:'Roboto Mono',monospace;font-variant-numeric:tabular-nums}
+/* Números */ #view-qwery td.num{font-family:'Roboto Mono',monospace;font-variant-numeric:tabular-nums}
 #view-qwery td.zero{color:#c8c8cc}
 #view-qwery td.col-total, #view-qwery th.col-total{border-left:1px solid var(--border);font-weight:700;color:var(--plum)}
 #view-qwery tr.method-row td.col-total{color:var(--text);font-weight:600}
-#view-qwery /* Estado vacío */
-  .empty-state{padding:70px 24px;text-align:center;color:var(--muted)}
+/* Estado vacío */ #view-qwery .empty-state{padding:70px 24px;text-align:center;color:var(--muted)}
 #view-qwery .empty-state .big{font-family:'Archivo',sans-serif;font-size:18px;color:var(--plum);font-weight:700;margin-bottom:6px}
 #view-qwery .meta-line{max-width:1560px;margin:10px auto 0;padding:0 28px;font-size:12px;color:var(--muted)}
 </style>
@@ -308,6 +298,7 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
 </div>
 
 <div id="view-torre" class="view active">
+
 
 <div class="wrap">
 
@@ -394,6 +385,7 @@ tr.row-alert:hover{background:rgba(255,93,93,.12);}
   </footer>
 
 </div>
+
 
 
 </div>
