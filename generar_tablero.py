@@ -1,4 +1,4 @@
-import pandas as pd, json, datetime, os, gzip, base64, io, sys, urllib.request
+    import pandas as pd, json, datetime, os, gzip, base64, io, sys, urllib.request
 from dateutil import parser as dtparser
 import pytz
 
@@ -70,6 +70,8 @@ spu_estandar:R062\tMeli
 amstrates16\tOcasa
 Moova_Home_SameDay_AM\tMoova
 Moova_Home_SameDay_Sa\tMoova
+Cabify_Home_SameDay_Sa\tCabify
+Fasttrack_Home_WK\tFasttrack
 amstrates17\tamstrates17
 OCASA_Reverse_Store\tOcasa
 OCASA_Home_Regular_Misiones\tOcasa
@@ -150,7 +152,9 @@ amstrates24\tMOOVA-SAMEDAY
 Moova_Home_SameDay_WK\tMOOVA-WK
 Moova_Reverse_Home\tMOOVA
 Moova_Home_SameDay_AM\tMOOVA-SAMEDAY-AM
-Moova_Home_SameDay_Sa\tSameDay_Sa
+Moova_Home_SameDay_Sa\tSD Sabado
+Cabify_Home_SameDay_Sa\tSD Sabado
+Fasttrack_Home_WK\tFasttrack WK
 Cabify_Home_SameDay\tCabify Same Day
 Cabify_Home_SameDay_PM\tCabify Same Day PM
 Cabify_Home_SameDay_WK\tCabifyWK
@@ -289,6 +293,7 @@ subtitulo = (f'Compras generadas en los últimos {DAYS_WINDOW} días '
              f'Actualización automática cada 5 min. Datos derivados de ops-om-ar.')
 
 html = open(TEMPLATE_HTML, encoding='utf-8').read()
+js = open(TEMPLATE_JS, encoding='utf-8').read()
 
 # Reemplazos de header (robustos: por regex sobre los elementos con id/estructura conocida)
 import re
@@ -299,7 +304,7 @@ html = re.sub(r'(<span class="big" id="cutoffTime">).*?(</span>)', lambda m: m.g
 html = re.sub(r'((?:Periodo|Semana)\s*<span style="color:var\(--text\)">).*?(</span>)',
               lambda m: m.group(1)+periodo_txt+m.group(2), html, flags=re.S)
 
-html = html.replace('__DATA__', b64)
+html = html.replace('__DATA__', b64).replace('__JS__', js)
 
 with open(OUT_HTML, 'w', encoding='utf-8') as f:
     f.write(html)
