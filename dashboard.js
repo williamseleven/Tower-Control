@@ -72,6 +72,7 @@ const SAMEDAY_SERVICES = new Set([
   'MOOVA-SAMEDAY-PM',
   'MOOVA-WK',
   'PickitHomeSD',
+  'SD Sabado',
 ]);
 const isSameDay  = s => SAMEDAY_SERVICES.has(String(s||'').trim());
 const isMeliflex = s => /^meliflex$/i.test(String(s||'').trim());
